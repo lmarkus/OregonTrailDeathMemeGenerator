@@ -1,0 +1,165 @@
+<!--
+  MIT License
+
+        Copyright (c) 2017 Lenny Markus
+
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Oregon Trail Death Meme Generator: A generator that parodies the
+    'You have Died of Dysentery' Oregon TRail death screen">
+    <title>Oregon Trail Death Generator</title>
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+
+    <style type="text/css">
+        body {
+            background: black;
+            text-align: center;
+            padding-top: 50px;
+            font-size: 100%;
+        }
+
+        #memeholder {
+            margin: 0 auto;
+        }
+
+        .wagon {
+            width: 70%;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .wagon img {
+            width: 100%;
+        }
+
+        .epitaph {
+            margin-top: 1em;
+        }
+
+        .epitaph input {
+            font-family: 'Press Start 2P', sans-serif;
+            font-size: 2vw;
+            color: #00FF00;
+            background: black;
+            text-align: center;
+            width: 100%;
+            border: none;
+            text-transform: uppercase;
+        }
+
+        #memeframe {
+            width: 10px;
+            margin: 2em auto;
+            border: dotted darkgoldenrod;
+            display: none;
+        }
+
+        #memeframe legend {
+            color: goldenrod;
+            font-family: monospace;
+        }
+
+    </style>
+</head>
+<body>
+<div id="memeholder">
+    <div class="wagon">
+        <img id="wagon" src="wagon.svg"/>
+    </div>
+    <div class="epitaph" contenteditable="true">
+        <input id="epitaph" type="text" value="You have died of <edit me>">
+    </div>
+    <button onclick="draw()">Create Image!</button>
+</div>
+
+
+<fieldset id="memeframe">
+    <legend>Right Click &amp; Save Me</legend>
+    <canvas id="memecanvas">
+        Sorry, canvas not supported
+    </canvas>
+</fieldset>
+<script>
+
+    /**
+     * Yes, it's messy, it's a 30 minute project :)
+     */
+    function draw() {
+        var canvas = document.getElementById('memecanvas');
+        ctx = canvas.getContext('2d');
+
+        // Grab the image
+        var img = document.getElementById('wagon');
+        // Grab the text
+        var epitaph = document.getElementById('epitaph').value.toUpperCase();
+
+        // Go full width, adjust later
+        var deviceWidth = window.innerWidth;
+
+        canvasWidth = deviceWidth;
+        canvasHeight = Math.min(480, img.height * 1.25 + 20);
+
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        // Black background...
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // Center image
+        var imgScale = img.height / img.naturalHeight;
+
+        var x = canvas.width / 2 - (img.width * imgScale) / 2;
+        var y = canvas.height / 2 - img.height / 2;
+
+
+        ctx.save();
+        ctx.scale(imgScale, imgScale);
+        // Draw it
+        ctx.drawImage(img, x, y);
+        ctx.restore();
+
+
+        //Draw Text
+        // Figure out text bounding box, so the final image size can be adjusted accordingly
+        ctx.lineWidth = 5;
+        ctx.font = '2vw "Press Start 2P"';
+        ctx.fillStyle = '#00FF00';
+        ctx.textAlign = 'center';
+        var textWidth = ctx.measureText(epitaph).width;
+        x = canvas.width / 2;
+        y = img.height * 1.25;
+        ctx.fillText(epitaph, x, y);
+
+        // Save temporarily while the final size is readjusted
+        var buffer = ctx.getImageData(0, 0,
+            canvas.width,
+            canvas.height);
+
+        canvas.width = Math.max(img.width, textWidth) + 20;
+        ctx.putImageData(buffer, (canvas.width - deviceWidth) / 2, 0);
+
+        document.getElementById('memeframe').style.display = 'block';
+    }
+</script>
+</body>
+</html>
